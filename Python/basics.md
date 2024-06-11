@@ -36,10 +36,10 @@ langage = "Powershell"
 f-string allows you to insert variables into the string to be displayed, it is a character string preceded by an f or F containing expressions between braces {}.
 
 ```python
-prenom = "Nicolas"
-langage = "Python"
-jour = "vendredi"
-print(f"Je m'appelle {prenom} et je révise sur {langage} chaque {jour}.")
+first_name = "Nicolas"
+language = "Python"
+day = "vendredi"
+print(f"Je m'appelle {first_name} et je révise sur {language} chaque {day}.")
 ```
 
 ## Understanding the data types
