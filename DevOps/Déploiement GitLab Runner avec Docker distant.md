@@ -1,4 +1,6 @@
-Doc rédigée par Loïc. A consulter et à rédiger de façon plus personnelle.
+Doc rédigée par Loïc : https://github.com/Jloic64
+
+Celle-ci me servira de squelette pour reproduire le projet et sera rédigée de façon plus personnelle.
 
 # 📘 Guide de déploiement GitLab Runner avec Docker distant via SSH
 ## 🧭 Table des matières
