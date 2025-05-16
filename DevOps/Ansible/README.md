@@ -1,6 +1,5 @@
-# Apprendre Ansible
-## Installation d'Ansible
-### Installation via APT
+# Installation d'Ansible
+## Installation via APT
 
 ```bash
 apt update && apt full-upgrade -y
@@ -10,7 +9,7 @@ usermod -aG sudo ansible
 ansible --version
 ```
 
-### Installation via environnement Python
+## Installation via environnement Python
 
 Un environnement Python est un espace isolé dans lequel on peut installer des paquets Python sans interférer avec les autres projets ou avec l’installation Python globale du système. Il permet d'avoir une bulle autonome, propre et facile à supprimer si besoin.
 
@@ -38,8 +37,8 @@ echo "alias env-ansible='source ~/.venv/env-ansible/bin/activate'" >> ~/.bashrc
 reboot
 ```
 
-## Configurer la connexion SSH 
-### Avec ssh-copy-id
+# Configurer la connexion SSH 
+## Avec ssh-copy-id
 
 S'assurer que sshd_config est correctement renseigné :
 
@@ -56,7 +55,7 @@ ssh-keygen -t rsa -b 4096 (serveur)
 sudo ssh-copy-id ansible@IP_CLIENT
 ```
 
-### Avec copie manuelle
+## Avec copie manuelle
 
 ```bash
 cat ~/.ssh/id_rsa.pub 
@@ -70,15 +69,15 @@ chown ansible:ansible /home/ansible/.ssh
 coller la clé dans authorized_keys
 ```
 
-### Test de connexion
+## Test de connexion
 
 ```bash
 ssh ansible@IP_CLIENT
 ```
 
-## Créer un fichier d'inventaire pour Ansible
-### Création de l'inventaire
-#### Ajout du serveur Ansible
+# Créer un fichier d'inventaire pour Ansible
+## Création de l'inventaire
+### Ajout du serveur Ansible
 
 ```bash
 mkdir ~/ansible
@@ -90,7 +89,7 @@ Ajouter les lignes suivantes :
 localhost ansible_connection=local
 ```
 
-#### Ajout du serveur distant Debian 12
+### Ajout du serveur distant Debian 12
 
 ```bash
 [<nom_du_groupe>]
@@ -101,7 +100,7 @@ exemple :
 debian-ansible ansible_host=IP_CLIENT ansible_user=ansible
 ```
 
-### Test du bon fonctionnement d'Ansible
+## Test du bon fonctionnement d'Ansible
 
 ```bash
 ansible all -m ping
@@ -111,8 +110,8 @@ Si le chemin vers l'inventaire n'est pas par défaut :
 ansible all -m ping -i /chemin/vers/inventaire
 ```
 
-## Créer et lancer son premier playbook Ansible
-### Ecriture d'un playbook minimal
+# Créer et lancer son premier playbook Ansible
+## Ecriture d'un playbook minimal
 
 ```bash
 mkdir ~/ansible/projet-1/
@@ -157,7 +156,7 @@ mkdir files
 cp /root/.ssh/id_rsa.pub /root/ansible/projet-1/files/id_rsa.pub
 ```
 
-### Exécution du playbook
+## Exécution du playbook
 
 ```bash
 ansible-playbook -i ~/ansible/hosts setup.yaml
@@ -197,7 +196,7 @@ Si on relance le playbook, l'indempotence d'Ansible fait que tout sera OK :
     <img src="success_playbook2.png" alt="success_playbook2" style="width: 1000px;" />
 </p>
 
-### Vérifications sur la machine distante
+## Vérifications sur la machine distante
 
 ```bash
 htop
@@ -205,7 +204,7 @@ cat /etc/passwd|grep tutotech_admin
 sudo cat /home/tutotech_admin/.ssh/authorized_keys
 ```
 
-## Ecrire un playbook Ansible simple
+# Ecrire un playbook Ansible simple
 
 Le but ici est d'utiliser un playbook Ansible pour :
   - installer le logiciel cmatrix
@@ -257,3 +256,55 @@ Le but ici est d'utiliser un playbook Ansible pour :
       when: user_check.rc == 0
 ```
 
+# Utiliser les rôles Ansible dans un playbook
+## Contexte et préparation de la structure du rôle
+### Création du répertoire et copie de la clé SSH
+
+```bash
+mkdir -p ~/ansible/projet-2/roles
+cd ~/ansible/projet-2
+ansible-galaxy init roles/users
+
+cp ~/ansible/projet-1/files/id_rsa.pub ~/ansible/projet-2/roles/users/files/
+```
+
+### Configuration du rôle (roles/users/tasks/main.yml)
+
+```bash
+- name: Créer l'utilisateur tutotech_technicien
+  ansible.builtin.user:
+    name: tutotech_technicien
+    shell: /bin/bash
+    create_home: yes
+    comment: "Utilisateur technique pour accès SSH"
+
+- name: Déployer la clé SSH
+  ansible.posix.authorized_key:
+    user: tutotech_technicien
+    state: present
+    key: "{{ lookup('file', 'id_rsa.pub') }}"
+```
+
+### Playbook principal (site.yml)
+
+```bash
+- name: Déploiement de l'utilisateur technique
+  hosts: SRV-DEB12
+  become: yes
+  roles:
+    - users
+```
+
+### Exécution et vérification
+
+```bash
+cd ~/ansible/projet-2
+ansible-playbook -i ~/ansible/hosts site.yml
+```
+
+Sur la machine distante
+```bash
+id tutotech_technicien
+
+sudo -u tutotech_technicien cat /home/tutotech_technicien/.ssh/authorized_keys
+```
