@@ -308,3 +308,381 @@ id tutotech_technicien
 
 sudo -u tutotech_technicien cat /home/tutotech_technicien/.ssh/authorized_keys
 ```
+
+# Utiliser un handler dans un playbook Ansible
+
+Se placer dans roles/ et générer le rôle webserver :
+```bash
+ansible-galaxy init webserver
+```
+
+Ajouter les tâches suivantes dans `roles/webserver/tasks/main.yml` :
+```bash
+---
+- name: Installer Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  notify: restart nginx
+
+- name: Déployer la configuration Nginx
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/nginx/sites-available/monsite.conf
+  notify: restart nginx
+
+```
+
+Télécharger le fichier de template Jinjia2 :
+```bash
+curl -o ~/ansible/projet-2/roles/webserver/templates/vhost.conf.j2
+https://raw.githubusercontent.com/geerlingguy/ansible-role-nginx/blob/master/templates/vhost.j2
+```
+
+Ajouter le handler pour redémarrer Nginx dans `roles/webserver/handlers/main.yml` :
+```bash
+---
+- name: restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+
+```
+
+Modifier le site.yml pour inclure le rôle webserver :
+```bash
+- hosts: webservers
+  become: yes
+  roles:
+    - webserver
+```
+
+L'exécution du playbook peut renvoyer une erreur nginx_listen_ipv6. Si c'est le cas, dans roles/webserver/vars/main.yml, ajouter la ligne :
+```bash
+nginx_listen_ipv6: "off"
+```
+
+Lancer le playbook :
+```bash
+ansible-playbook -i ~/ansible/hosts ~/ansible/projet-2/site.yml
+```
+
+<p align="center">
+    <img src="success_playbook3.png" alt="success_playbook3" style="width: 1000px;" />
+</p>
+
+# Utiliser les variables dans un playbook
+Dans le dossier `roles/`, lancer la création du rôle `users`si ce n'est pas déjà fait :
+```bash
+ansible-galaxy init users
+```
+
+Dans `roles/users/defaults/main.yml`, ajouter la variable `users_list` contenant une liste d'utilisateurs à créer :
+```bash
+---
+users_list:
+  - name: bonjour
+    shell: /bin/bash
+  - name: salut
+    shell: /bin/bash
+```
+
+Adapter les tâches en éditant `roles/users/tasks/main.yml` :
+```bash
+- name: Créer les utilisateurs
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: /bin/bash
+    create_home: yes
+    comment: "{{ item.comment }}"
+  loop: "{{ users_list }}"
+
+- name: Déployer la clé SSH
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ lookup('file', 'id_rsa.pub') }}"
+  loop: "{{ users_list }}"
+```
+
+Surcharger la variable dans le playbook en éditant `site.yml` et en remplaçant la partie roles :
+```bash
+- hosts: all
+  become: true
+  roles:
+    - role: users
+      vars:
+        users_list:
+          - name: bonjour
+            comment: "Test numero uno"
+          - name: salut
+            comment: "Test deux"
+```
+
+Exécuter le playbook :
+```bash
+ansible-playbook -i ~/ansible/hosts ~/ansible/projet-2/site.yml
+```
+
+<p align="center">
+    <img src="success_playbook4.png" alt="success_playbook4" style="width: 1000px;" />
+</p>
+
+Vérifier sur l'autre machine : 
+
+<p align="center">
+    <img src="users_list_ok.png" alt="users_list_ok" style="width: 600px;" />
+</p>
+
+# Déployer une configuration personnalisée via un template Jinja2
+
+Créer un nouveau projet :
+```bash
+mkdir -p projet-3/roles/webserver/{tasks,handlers,templates}
+touch projet-3/site.yml
+touch projet-3/inventory.ini
+cd projet-3
+```
+
+Définir l'inventaire :
+```bash
+nano inventory.ini
+
+[webservers]
+debian-ansible ansible_host=ADRESSE_IP ansible_user=USER
+```
+
+Créer le playbook `site.yml` :
+```bash
+---
+- name: Deploiement de la page web personnalisée
+  hosts: web
+  roles:
+    - webserver
+```
+
+Renseigner le fichier `roles/webserver/tasks/main.yml` :
+```bash
+---
+- name: Installer Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Deployer la page d'accueil personnalisee
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    mode: '0644'
+  notify: restart nginx
+```
+
+Renseigner le fichier `roles/webserver/handlers.main.yml` :
+```bash
+---
+- name: restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+```
+
+Créer le fichier `roles/webserver/templates/index.html.j2` (Rendre la page jolie est en option 😁) :
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Salut tout le monde</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 0.5em;
+    }
+
+    p {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Salut, bienvenue chez Ncls-d !</h1>
+  <p>Deploiement automatique avec Ansible  ^=^r  ^=^z^`</p>
+</body>
+</html>
+```
+
+Exécuter le playbook :
+```bash
+ansible-playbook -i inventory.ini site.yml
+```
+
+<p align="center">
+    <img src="success_playbook5.png" alt="success_playbook5" style="width: 600px;" />
+</p>
+
+<p align="center">
+    <img src="Jinja2_OK.png" alt="Jinja2_OK" style="width: 600px;" />
+</p>
+
+# Installer Docker avec Ansible
+
+Créer un nouveau projet 
+```bash
+mkdir -p projet-docker
+cd projet-docker
+touch install_docker.yml inventory.ini
+```
+
+Ajouter le rôle geerlingguy.docker :
+```bash
+ansible-galaxy install geerlingguy.docker
+```
+
+Créer l'inventaire `inventory.ini` :
+```bash
+[docker]
+vm_docker ansible_host=IP_CIBLE ansible_user=USER ansible_ssh_private_key_file=~/.ssh/id_rsa
+```
+
+Créer le playbook `install_docker.yml` :
+```bash
+---
+- name: Installer Docker et configurer l'utilisateur
+  hosts: docker
+  become: true
+  vars:
+    docker_users:
+      - admin_docker
+  roles:
+    - geerlingguy.docker
+
+  tasks:
+    - name: Créer l'utilisateur admin_docker
+      ansible.builtin.user:
+        name: admin_docker
+        groups: docker
+        append: yes
+        shell: /bin/bash
+
+    - name: Créer le dossier .ssh pour admin_docker
+      ansible.builtin.file:
+        path: /home/admin_docker/.ssh
+        state: directory
+        owner: admin_docker
+        group: admin_docker
+        mode: '0700'
+
+    - name: Copier une clé publique SSH (si tu veux te connecter en SSH)
+      ansible.builtin.copy: (à remplacer si vous préférez un mdp)
+        src: ~/.ssh/id_rsa.pub
+        dest: /home/admin_docker/.ssh/authorized_keys
+        owner: admin_docker
+        group: admin_docker
+        mode: '0600'
+```
+
+Lancer le playbook :
+```bash
+ansible-playbook -i inventory.ini install_docker.yml
+```
+
+Vérifications :
+ssh admin_docker@IP_CIBLE
+docker info
+docker run hello-world
+
+<p align="center">
+    <img src="success_playbookdocker.png" alt="success_playbookdocker" style="width: 1000px;" />
+</p>
+
+<p align="center">
+    <img src="ssh_docker.png" alt="ssh_docker" style="width: 1000px;" />
+</p>
+
+<p align="center">
+    <img src="docker_hello_world.png" alt="docker_hello_world" style="width: 1000px;" />
+</p>
+
+# Déployer un conteneur Docker avec Ansible
+
+Installer la collection community.docker :
+```bash
+ansible-galaxy collection install community.docker
+```
+
+Configurer le fichier d'inventaire `hosts.ini` :
+```bash
+[docker_hosts]
+IP_CIBLE ansible_ssh_user=USER ansible_ssh_private_key_file=~/.ssh/id_rsa
+```
+
+Vérification de la connexion SSH :
+```bash
+ansible -i hosts.ini docker_hosts -m ping
+```
+
+Si tout est configuré correctement, la réponse obtenue ressemble à :
+```bash
+IP_CIBLE | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+```
+
+Créer le playbook pour déployer un conteneur Docker (nginx) :
+```bash
+---
+- name: Déployer un conteneur Nginx
+  hosts: docker_hosts
+  become: true
+  collections:
+    - community.docker
+  tasks:
+    - name: Lancer un conteneur Nginx
+      community.docker.docker_container:
+        name: my_nginx
+        image: nginx:latest
+        state: started
+        ports:
+          - "8080:80"
+        env:
+          NGINX_HOST: "localhost"
+          NGINX_PORT: "8080"
+```
+
+Lancer le playbook :
+```bash
+ansible-playbook -i hosts.ini deployer_conteneur_nginx.yml
+```
+
+<p align="center">
+    <img src="success_playbookconteneur.png" alt="success_playbookconteneur" style="width: 1000px;" />
+</p>
+
+Vérifications :
+
+Sur la machine cible : 
+<p align="center">
+    <img src="docker_ps.png" alt="docker_ps_" style="width: 1000px;" />
+</p>
+
+Sur le port 8080 : 
+<p align="center">
+    <img src="nginx.png" alt="nginx" style="width: 1000px;" />
+</p>
