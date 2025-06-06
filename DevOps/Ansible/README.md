@@ -679,7 +679,7 @@ Vérifications :
 
 Sur la machine cible : 
 <p align="center">
-    <img src="docker_ps.png" alt="docker_ps_" style="width: 1000px;" />
+    <img src="docker_ps.png" alt="docker_ps_" style="width: 600px;" />
 </p>
 
 Sur le port 8080 : 
