@@ -20,39 +20,39 @@ Le **SDN (Software Defined Networking)** apporte la solution en rendant le rése
 
 ## Concepts clés
 
-- **Infrastructure as Code (IaC) pour le réseau** : Gestion de la configuration réseau (VLAN, ACL, firewall) via des fichiers code (YAML, JSON) versionnés dans Git.
-- **Réseau Déclaratif vs Impératif** :
-  - *Impératif* : Donner une séquence de commandes à exécuter ("Fais ceci, puis cela").
-  - *Déclaratif* : Décrire l'état final souhaité ("Je veux que cette app soit accessible sur le port 443") et laisser le système l'implémenter.
-- **CI/CD pour le réseau** : Utilisation de pipelines (Jenkins, GitLab CI) pour tester et déployer automatiquement les changements de configuration réseau.
-- **APIs et Contrôleurs SDN** : Le contrôleur SDN (ex : VMware NSX, Cisco ACI) expose des APIs REST qui permettent aux outils d'automatisation de piloter le réseau.
+**Infrastructure as Code (IaC) pour le réseau** : Gestion de la configuration réseau (VLAN, ACL, firewall) via des fichiers code (YAML, JSON) versionnés dans Git.
+**Réseau Déclaratif vs Impératif** :
+*Impératif* : Donner une séquence de commandes à exécuter ("Fais ceci, puis cela").
+*Déclaratif* : Décrire l'état final souhaité ("Je veux que cette app soit accessible sur le port 443") et laisser le système l'implémenter.
+**CI/CD pour le réseau** : Utilisation de pipelines (Jenkins, GitLab CI) pour tester et déployer automatiquement les changements de configuration réseau.
+**APIs et Contrôleurs SDN** : Le contrôleur SDN (ex : VMware NSX, Cisco ACI) expose des APIs REST qui permettent aux outils d'automatisation de piloter le réseau.
 
 ---
 
 ## Bénéfices de l'intégration (Pourquoi)
 
-- **Vitesse et Agilité** : Provisionnement du réseau en secondes via une API.
-- **Cohérence et reproductibilité** : Déploiement identique et reproductible de l'environnement réseau.
-- **Réduction des Erreurs** : Élimination des erreurs humaines grâce à l'automatisation.
-- **Sécurité "Shift Left"** : Intégration des politiques de sécurité réseau directement dans le pipeline de déploiement de l'application.
-- **Résilience** : Recréation rapide de l'environnement en cas de incident.
+**Vitesse et Agilité** : Provisionnement du réseau en secondes via une API.
+**Cohérence et reproductibilité** : Déploiement identique et reproductible de l'environnement réseau.
+**Réduction des Erreurs** : Élimination des erreurs humaines grâce à l'automatisation.
+**Sécurité "Shift Left"** : Intégration des politiques de sécurité réseau directement dans le pipeline de déploiement de l'application.
+**Résilience** : Recréation rapide de l'environnement en cas de incident.
 
 ---
 
 ## Outils et Technologies (Comment)
 
 ### Plateformes SDN/NFV
-- **VMware NSX-T** : Leader pour les clouds privés/virtuels, excellente intégration Kubernetes.
-- **Cisco ACI** : Solution centrée sur les datacenters.
-- **Projets open-source** : OpenDaylight (contrôleur SDN), Tungsten Fabric.
+**VMware NSX-T** : Leader pour les clouds privés/virtuels, excellente intégration Kubernetes.
+**Cisco ACI** : Solution centrée sur les datacenters.
+**Projets open-source** : OpenDaylight (contrôleur SDN), Tungsten Fabric.
 
 ### Orchestrateurs de Conteneurs
-- **Kubernetes** : Le standard de fait. Son modèle réseau (CNI - Container Network Interface) s'appuie sur des plugins SDN (Calico, Cilium, Weave Net).
+**Kubernetes** : Le standard de fait. Son modèle réseau (CNI - Container Network Interface) s'appuie sur des plugins SDN (Calico, Cilium, Weave Net).
 
 ### Outils d'Automatisation IaC
-- **Ansible** : Idéal pour l'automatisation réseau, nombreux modules dédiés.
-- **Terraform** : Provisionnement déclaratif d'infrastructures réseau (via providers NSX, ACI, cloud).
-- **Pulumi** : Définition de l'IaC avec de vrais langages de programmation (Python, Go).
+**Ansible** : Idéal pour l'automatisation réseau, nombreux modules dédiés.
+**Terraform** : Provisionnement déclaratif d'infrastructures réseau (via providers NSX, ACI, cloud).
+**Pulumi** : Définition de l'IaC avec de vrais langages de programmation (Python, Go).
 
 ### Relation SDN / SD-WAN
 Le **SD-WAN est une application concrète du concept SDN** appliquée au réseau étendu. Il utilise les mêmes principes : centralisation du contrôle (via un orchestrator cloud), programmabilité via API et abstraction des liens sous-jacents. Des solutions comme **Silver Peak**, Cisco SD-WAN ou VMware SD-WAN sont ainsi des briques SDN prêtes pour une intégration DevOps.
