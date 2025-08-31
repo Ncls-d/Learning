@@ -31,11 +31,11 @@ Le **SDN (Software Defined Networking)** apporte la solution en rendant le rése
 
 ## Bénéfices de l'intégration (Pourquoi)
 
-- ** Vitesse et Agilité** : Provisionnement du réseau en secondes via une API.
-- ** Cohérence et reproductibilité** : Déploiement identique et reproductible de l'environnement réseau.
-- ** Réduction des Erreurs** : Élimination des erreurs humaines grâce à l'automatisation.
-- ** Sécurité "Shift Left"** : Intégration des politiques de sécurité réseau directement dans le pipeline de déploiement de l'application.
-- ** Résilience** : Recréation rapide de l'environnement en cas de incident.
+- **Vitesse et Agilité** : Provisionnement du réseau en secondes via une API.
+- **Cohérence et reproductibilité** : Déploiement identique et reproductible de l'environnement réseau.
+- **Réduction des Erreurs** : Élimination des erreurs humaines grâce à l'automatisation.
+- **Sécurité "Shift Left"** : Intégration des politiques de sécurité réseau directement dans le pipeline de déploiement de l'application.
+- **Résilience** : Recréation rapide de l'environnement en cas de incident.
 
 ---
 
@@ -67,10 +67,10 @@ Le **SD-WAN est une application concrète du concept SDN** appliquée au réseau
 2.  **Pipelines CI/CD de réseau** :
     ```mermaid
     graph LR
-    A[Dev push une config<br>dans Git] --> B{CI/CD Pipeline<br>(Jenkins/GitLab)}
-    B --> C[Tester la config<br>dans un sandbox]
-    C -- Tests OK --> D[Appel API du contrôleur SDN<br>via Ansible/Terraform]
-    D --> E[Déploiement en Prod]
+    A["Dev push une config dans Git"] --> B{"CI/CD Pipeline (Jenkins/GitLab)"}
+    B --> C["Tester la config dans un sandbox"]
+    C -- "Tests OK" --> D["Appel API du contrôleur SDN via Ansible/Terraform"]
+    D --> E["Déploiement en Prod"]
     ```
 
 3.  **Cloud Hybride** : Automatisation du déploiement de connexions sécurisées (VPN, SD-WAN) entre cloud public et datacenter on-premise de manière cohérente.
