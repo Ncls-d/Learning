@@ -21,10 +21,14 @@ Le **SDN (Software Defined Networking)** apporte la solution en rendant le rése
 ## Concepts clés
 
 **Infrastructure as Code (IaC) pour le réseau** : Gestion de la configuration réseau (VLAN, ACL, firewall) via des fichiers code (YAML, JSON) versionnés dans Git.
+
 **Réseau Déclaratif vs Impératif** :
 *Impératif* : Donner une séquence de commandes à exécuter ("Fais ceci, puis cela").
+
 *Déclaratif* : Décrire l'état final souhaité ("Je veux que cette app soit accessible sur le port 443") et laisser le système l'implémenter.
+
 **CI/CD pour le réseau** : Utilisation de pipelines (Jenkins, GitLab CI) pour tester et déployer automatiquement les changements de configuration réseau.
+
 **APIs et Contrôleurs SDN** : Le contrôleur SDN (ex : VMware NSX, Cisco ACI) expose des APIs REST qui permettent aux outils d'automatisation de piloter le réseau.
 
 ---
@@ -32,9 +36,13 @@ Le **SDN (Software Defined Networking)** apporte la solution en rendant le rése
 ## Bénéfices de l'intégration (Pourquoi)
 
 **Vitesse et Agilité** : Provisionnement du réseau en secondes via une API.
+
 **Cohérence et reproductibilité** : Déploiement identique et reproductible de l'environnement réseau.
+
 **Réduction des Erreurs** : Élimination des erreurs humaines grâce à l'automatisation.
+
 **Sécurité "Shift Left"** : Intégration des politiques de sécurité réseau directement dans le pipeline de déploiement de l'application.
+
 **Résilience** : Recréation rapide de l'environnement en cas de incident.
 
 ---
